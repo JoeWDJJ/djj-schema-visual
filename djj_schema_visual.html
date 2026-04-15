@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJJ Equipment · 数据库结构说明</title>
+<style>
+:root {
+  --green: #1a472a;
+  --green-mid: #2d6a4f;
+  --green-light: #52b788;
+  --green-pale: #d8f3dc;
+  --gold: #b5883a;
+  --gold-pale: #fef9ef;
+  --blue: #185fa5;
+  --blue-pale: #e8f4fd;
+  --coral: #c0392b;
+  --coral-pale: #fdf0ee;
+  --purple: #6c3483;
+  --purple-pale: #f5eef8;
+  --gray: #5f5f5a;
+  --gray-pale: #f8f7f3;
+  --text: #1a1a18;
+  --text2: #4a4a46;
+  --text3: #888880;
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* HEADER */
+.header {
+  background: var(--green);
+  color: #fff;
+  padding: 40px 48px 32px;
+}
+.header-tag { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--green-light); margin-bottom: 10px; }
+.header-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+.header-sub { font-size: 15px; color: rgba(255,255,255,0.65); max-width: 600px; line-height: 1.7; }
+.header-stats { display: flex; gap: 32px; margin-top: 28px; flex-wrap: wrap; }
+.stat { }
+.stat-num { font-size: 28px; font-weight: 700; }
+.stat-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+/* INTRO */
+.intro { padding: 32px 48px; background: var(--surface); border-bottom: 0.5px solid var(--border2); }
+.intro-text { font-size: 14px; color: var(--text2); max-width: 800px; line-height: 1.8; }
+.intro-rule { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+.rule-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--green-pale); color: var(--green);
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.rule-pill::before { content: '✓'; font-size: 11px; }
+
+/* META FIELDS */
+.meta-bar {
+  background: var(--green-pale);
+  padding: 16px 48px;
+  display: flex; gap: 0; border-bottom: 0.5px solid var(--border2);
+}
+.meta-item {
+  flex: 1; text-align: center;
+  padding: 8px 16px;
+  border-right: 1px solid rgba(26,71,42,0.15);
+}
+.meta-item:last-child { border-right: none; }
+.meta-name { font-family: monospace; font-size: 13px; font-weight: 700; color: var(--green); }
+.meta-desc { font-size: 11px; color: var(--green-mid); margin-top: 3px; }
+
+/* MAIN CONTENT */
+.main { padding: 0 48px 64px; }
+
+/* DOMAIN SECTION */
+.domain {
+  margin-top: 40px;
+}
+.domain-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 0;
+}
+.domain-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.domain-info { flex: 1; }
+.domain-name { font-size: 16px; font-weight: 700; }
+.domain-desc { font-size: 12px; margin-top: 2px; opacity: 0.8; }
+.domain-count { font-size: 12px; font-weight: 600; opacity: 0.7; }
+
+/* DOMAIN COLORS */
+.domain-foundation .domain-header { background: var(--green); color: #fff; }
+.domain-foundation .domain-icon { background: rgba(255,255,255,0.15); }
+.domain-product .domain-header { background: var(--blue); color: #fff; }
+.domain-product .domain-icon { background: rgba(255,255,255,0.15); }
+.domain-party .domain-header { background: var(--purple); color: #fff; }
+.domain-party .domain-icon { background: rgba(255,255,255,0.15); }
+.domain-transaction .domain-header { background: var(--gold); color: #fff; }
+.domain-transaction .domain-icon { background: rgba(255,255,255,0.15); }
+.domain-operations .domain-header { background: var(--coral); color: #fff; }
+.domain-operations .domain-icon { background: rgba(255,255,255,0.15); }
+.domain-finance .domain-header { background: #1a3a5c; color: #fff; }
+.domain-finance .domain-icon { background: rgba(255,255,255,0.15); }
+.domain-audit .domain-header { background: var(--gray); color: #fff; }
+.domain-audit .domain-icon { background: rgba(255,255,255,0.15); }
+
+/* TABLE CARDS */
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1px;
+  background: var(--border2);
+  border: 1px solid var(--border2);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+}
+
+.table-card {
+  background: var(--surface);
+  padding: 20px 22px;
+}
+
+.table-name {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.table-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.table-desc {
+  font-size: 12px;
+  color: var(--text3);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.fields { display: flex; flex-direction: column; gap: 1px; }
+
+.field {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--border);
+  align-items: start;
+}
+.field:last-child { border-bottom: none; }
+
+.field-name {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text2);
+  font-weight: 500;
+  padding-top: 1px;
+}
+
+.field-name.pk { color: var(--gold); font-weight: 700; }
+.field-name.fk { color: var(--blue); }
+.field-name.meta { color: var(--green-mid); }
+
+.field-info { }
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.field-desc {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 1px;
+  line-height: 1.4;
+}
+
+.field-type {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
+  font-family: monospace;
+}
+
+.type-uuid { background: #fef3c7; color: #92400e; }
+.type-text { background: #ede9fe; color: #5b21b6; }
+.type-num { background: #d1fae5; color: #065f46; }
+.type-date { background: #dbeafe; color: #1e40af; }
+.type-bool { background: #fce7f3; color: #9d174d; }
+.type-enum { background: #f3f4f6; color: #374151; }
+.type-json { background: #fef9c3; color: #713f12; }
+
+/* LEGEND */
+.legend {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  padding: 16px 48px;
+  background: var(--surface);
+  border-top: 0.5px solid var(--border2);
+  border-bottom: 0.5px solid var(--border2);
+  margin-top: 40px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* STATUS ENUMS */
+.enum-section { padding: 32px 48px 0; }
+.enum-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.enum-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.enum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.enum-card {
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.enum-name { font-family: monospace; font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+.enum-label { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.enum-values { display: flex; flex-direction: column; gap: 6px; }
+.enum-value { display: flex; align-items: flex-start; gap: 8px; }
+.enum-code { font-family: monospace; font-size: 11px; color: var(--green); font-weight: 600; min-width: 160px; flex-shrink: 0; padding-top: 1px; }
+.enum-meaning { font-size: 12px; color: var(--text2); }
+
+/* VIEWS SECTION */
+.views-section { padding: 32px 48px; }
+.views-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.view-card {
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-left: 3px solid var(--green-mid);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 18px;
+}
+.view-name { font-family: monospace; font-size: 12px; color: var(--green); font-weight: 700; margin-bottom: 4px; }
+.view-label { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.view-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.view-use { font-size: 11px; color: var(--green-mid); margin-top: 8px; font-weight: 600; }
+
+@media (max-width: 768px) {
+  .header, .intro, .main, .meta-bar, .legend, .enum-section, .views-section { padding-left: 20px; padding-right: 20px; }
+  .header-title { font-size: 24px; }
+  .meta-bar { flex-wrap: wrap; }
+  .meta-item { min-width: 50%; border-right: none; border-bottom: 1px solid rgba(26,71,42,0.15); }
+  .tables-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-tag">数据库结构说明 · Database Schema</div>
+  <div class="header-title">DJJ 数据底座 · 人人都能看懂版</div>
+  <div class="header-sub">这份文档把技术数据库结构翻译成普通语言。每张表是什么、存什么、为什么存——不需要技术背景也能理解。</div>
+  <div class="header-stats">
+    <div class="stat"><div class="stat-num">25</div><div class="stat-label">核心数据表</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">业务域</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">智能视图</div></div>
+    <div class="stat"><div class="stat-num">13</div><div class="stat-label">状态枚举类型</div></div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="intro">
+  <div class="intro-text">
+    数据库是整个系统的地基。它由25张"表"构成，每张表就像一个专门用途的登记本——有的记设备，有的记客户，有的记每一笔钱的流动。所有表通过唯一编号（UUID）互相关联，追踪一台叉车的完整历史，就像拉一条线，能串起它从出厂到报废经历的每一件事。
+  </div>
+  <div class="intro-rule">
+    <span class="rule-pill">数据只存一次，不重复</span>
+    <span class="rule-pill">状态变化全程记录不删除</span>
+    <span class="rule-pill">计算结果不存库，实时算</span>
+    <span class="rule-pill">每条记录必须知道从哪来</span>
+  </div>
+</div>
+
+<!-- META FIELDS -->
+<div class="meta-bar">
+  <div class="meta-item">
+    <div class="meta-name">id</div>
+    <div class="meta-desc">每条记录的唯一身份证号（UUID格式）<br>系统自动生成，永远不重复</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-name">created_at</div>
+    <div class="meta-desc">这条记录创建的精确时间<br>系统自动写入，不可修改</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-name">source</div>
+    <div class="meta-desc">数据从哪里来<br>人工录入 / 系统生成 / 供应商文件 / API导入</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-name">confidence</div>
+    <div class="meta-desc">这条数据有多可靠<br>已核验 / 有文件 / 人工录入 / 系统推断</div>
+  </div>
+</div>
+
+<div style="padding: 12px 48px; background: var(--green-pale); font-size: 12px; color: var(--green-mid); border-bottom: 0.5px solid rgba(26,71,42,0.15);">
+  以上四个字段每张表都有，是数据底座的基础规则。下面不再重复列出。
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#92400e"></div>UUID · 唯一标识符</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#5b21b6"></div>TEXT · 文字内容</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#065f46"></div>数字 · 金额/数量</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1e40af"></div>DATE · 日期时间</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9d174d"></div>BOOL · 是/否</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#374151"></div>ENUM · 固定选项</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#713f12"></div>JSON · 灵活数据</div>
+  <div style="margin-left: 8px; padding-left: 12px; border-left: 1px solid var(--border2); display:flex; gap:16px; flex-wrap:wrap;">
+    <div class="legend-item"><span style="font-family:monospace;font-size:11px;color:var(--gold);font-weight:700">金色字段</span> = 主键（这张表的身份证）</div>
+    <div class="legend-item"><span style="font-family:monospace;font-size:11px;color:var(--blue)">蓝色字段</span> = 外键（指向另一张表）</div>
+    <div class="legend-item"><span style="font-family:monospace;font-size:11px;color:var(--green-mid)">绿色字段</span> = 元字段（四个基础字段）</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- DOMAIN 1: FOUNDATION -->
+<div class="domain domain-foundation">
+  <div class="domain-header">
+    <div class="domain-icon">🏢</div>
+    <div class="domain-info">
+      <div class="domain-name">基础域 · Foundation</div>
+      <div class="domain-desc">公司身份、员工权限、供应商信息——整个系统的地基，其他所有表都依赖这里</div>
+    </div>
+    <div class="domain-count">3 张表</div>
+  </div>
+  <div class="tables-grid">
+
+    <div class="table-card">
+      <div class="table-name">legal_entities</div>
+      <div class="table-label">法人实体（DJJ的三个公司）</div>
+      <div class="table-desc">DJJ在澳洲有三个独立的注册公司：悉尼总部、Perth分店、Brisbane分店。这张表记录每个公司的基本信息。每一笔业务都要知道归属哪个公司。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">唯一编号</div><div class="field-desc">每个法人实体的身份证号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">entity_code</span><div class="field-info"><div class="field-label">内部代码</div><div class="field-desc">如 DJJ_SYD / DJJ_PER / DJJ_BNE</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">legal_name</span><div class="field-info"><div class="field-label">法定公司名</div><div class="field-desc">如 DJJ Equipment Pty Ltd</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">abn</span><div class="field-info"><div class="field-label">澳洲商业税号</div><div class="field-desc">税务唯一标识，11位数字</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">state</span><div class="field-info"><div class="field-label">所在州</div><div class="field-desc">NSW / WA / QLD</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">role</span><div class="field-info"><div class="field-label">角色</div><div class="field-desc">总部 headquarter / 分店 branch</div><span class="field-type type-enum">选项</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">users</div>
+      <div class="table-label">系统用户（员工账号）</div>
+      <div class="table-desc">所有能登录系统的员工。最关键的设计是权限控制：每个人能看什么数据、能操作什么功能，由角色和数据访问级别决定。比如销售看不到成本价，财务能看全部。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">员工唯一编号</div><div class="field-desc">系统内的身份证</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">name</span><div class="field-info"><div class="field-label">姓名</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">email</span><div class="field-info"><div class="field-label">邮箱（登录账号）</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">role</span><div class="field-info"><div class="field-label">职能角色</div><div class="field-desc">销售 / 采购 / 财务 / 仓库 / 技师 / 主管 / 管理员</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">data_access</span><div class="field-info"><div class="field-label">数据权限级别</div><div class="field-desc">operational（日常操作）/ commercial（可见售价）/ financial（全部财务）/ admin（管理员）</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">entity_access</span><div class="field-info"><div class="field-label">可访问的公司</div><div class="field-desc">这个员工能看哪些法人实体的数据（可以多个）</div><span class="field-type type-json">数组</span></div></div>
+        <div class="field"><span class="field-name">base_location</span><div class="field-info"><div class="field-label">所在城市</div><div class="field-desc">Sydney / Perth / Brisbane / Manila / China</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">suppliers</div>
+      <div class="table-label">供应商（中国制造商）</div>
+      <div class="table-desc">DJJ的所有中国供应商，目前主要是杭叉、鲁工、中联重科。记录供应商的联系方式、账期、对接方式等。因为供应商在中国，特别记录了微信联系方式和惯用沟通渠道。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">供应商唯一编号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">supplier_code</span><div class="field-info"><div class="field-label">内部代码</div><div class="field-desc">如 HANGCHA / LUGONG / ZOOMLION</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">name_en / name_zh</span><div class="field-info"><div class="field-label">英文名 / 中文名</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">payment_terms_days</span><div class="field-info"><div class="field-label">标准账期天数</div><div class="field-desc">杭叉可超过180天，其他一般90天</div><span class="field-type type-num">数字</span></div></div>
+        <div class="field"><span class="field-name">contact_wechat</span><div class="field-info"><div class="field-label">微信联系方式</div><div class="field-desc">中国供应商常用，专门记录</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">data_exchange_method</span><div class="field-info"><div class="field-label">数据对接方式</div><div class="field-desc">email / wechat / feishu / api / edi</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOMAIN 2: PRODUCT -->
+<div class="domain domain-product">
+  <div class="domain-header">
+    <div class="domain-icon">🚜</div>
+    <div class="domain-info">
+      <div class="domain-name">产品域 · Product</div>
+      <div class="domain-desc">每一台物理设备的完整档案——从出厂型号到具体配置，从入库状态到最终归档，每一步都有记录</div>
+    </div>
+    <div class="domain-count">7 张表</div>
+  </div>
+  <div class="tables-grid">
+
+    <div class="table-card">
+      <div class="table-name">equipment_models</div>
+      <div class="table-label">机型库（约50个型号）</div>
+      <div class="table-desc">这里存的是"型号"，不是具体的车。比如"杭叉CPCD25"是一个型号，但仓库里可能有100台这个型号的车。型号是模板，具体的车在下面的equipment表里。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">型号唯一编号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">supplier_id</span><div class="field-info"><div class="field-label">对应供应商</div><div class="field-desc">→ 指向 suppliers 表</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">model_family</span><div class="field-info"><div class="field-label">型号族</div><div class="field-desc">如 CPCD25 / CDD14 / HELI G2</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">category</span><div class="field-info"><div class="field-label">设备类型</div><div class="field-desc">平衡重叉车 / 仓储叉车 / 装载机 / 挖掘机...</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">capacity_kg</span><div class="field-info"><div class="field-label">额定载重（公斤）</div><div class="field-desc">如 2500 = 2.5吨</div><span class="field-type type-num">数字</span></div></div>
+        <div class="field"><span class="field-name">power_type</span><div class="field-info"><div class="field-label">动力类型</div><div class="field-desc">electric（电动）/ lpg / diesel</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">equipment_config_schema</div>
+      <div class="table-label">配置维度定义</div>
+      <div class="table-desc">定义每种机型有哪些配置维度可以填写。比如叉车有"门架高度"这个维度，挖掘机有"斗容"这个维度。这样设计的好处是：新增一种设备类型，只需要在这里加几行记录，不需要改动数据库结构。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">model_id</span><div class="field-info"><div class="field-label">适用机型</div><div class="field-desc">空=适用所有机型</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">attribute_key</span><div class="field-info"><div class="field-label">配置维度代码</div><div class="field-desc">如 mast_height / battery_kwh / attachment_type</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">attribute_label</span><div class="field-info"><div class="field-label">配置维度名称</div><div class="field-desc">如"门架高度" / "电池容量" / "属具类型"</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">allowed_values</span><div class="field-info"><div class="field-label">可选值列表</div><div class="field-desc">如门架高度的选项：["3.0m","3.5m","4.0m","4.5m","5.0m"]</div><span class="field-type type-json">JSON</span></div></div>
+        <div class="field"><span class="field-name">unit</span><div class="field-info"><div class="field-label">单位</div><div class="field-desc">mm / kg / kWh / m</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">equipment</div>
+      <div class="table-label">设备实例（每台具体的车）⭐</div>
+      <div class="table-desc">这是整个系统最核心的表。每台物理上存在的叉车，有且只有一条记录，永远不删除。一台车的完整历史——从入库到出售——都从这里出发追踪。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">设备系统编号</div><div class="field-desc">数据库主键，不等于车架号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">djj_ref</span><div class="field-info"><div class="field-label">DJJ内部流水号</div><div class="field-desc">格式 DJJ-26-0001，车架号未知前的唯一追踪标识</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">vin</span><div class="field-info"><div class="field-label">车架号（Vehicle Identification Number）</div><div class="field-desc">设备到港后实物核验补录，是业务上的唯一标识</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">model_id</span><div class="field-info"><div class="field-label">对应机型</div><div class="field-desc">→ 指向 equipment_models 表</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">source_type</span><div class="field-info"><div class="field-label">采购方式</div><div class="field-desc">寄售 / 自采 / 工厂订制 / 以旧换新 / 试用</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">ownership</span><div class="field-info"><div class="field-label">所有权归属</div><div class="field-desc">supplier（厂家所有，寄售）/ djj（DJJ自有）/ customer（客户寄卖）</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">supplier_ref_cost</span><div class="field-info"><div class="field-label">厂家初始报价</div><div class="field-desc">铺货时谈好的参考价，不含GST</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">final_cost</span><div class="field-info"><div class="field-label">最终议价成本</div><div class="field-desc">实际谈下来的结算价，不含GST</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">current_status</span><div class="field-info"><div class="field-label">当前状态</div><div class="field-desc">19种状态：在途→质检→可售→预留→出库→租赁→维修→归档...</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">current_location</span><div class="field-info"><div class="field-label">当前位置</div><div class="field-desc">供应商仓库 / DJJ悉尼仓 / 海运中 / 客户现场...</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">data_plate_photo_url</span><div class="field-info"><div class="field-label">铭牌照片地址</div><div class="field-desc">入库时拍摄Data Plate，用于核验VIN</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">equipment_configs</div>
+      <div class="table-label">设备配置值（键值对）</div>
+      <div class="table-desc">存储每台具体设备的配置参数。一台车的每个配置维度存一行，比如：门架高度=4.0m、属具=侧移器、电池=80kWh。如果客户要求更换属具，旧配置不删除，新增一行并记录生效时间，历史完整保留。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">对应哪台设备</div><div class="field-desc">→ 指向 equipment 表</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">attribute_key</span><div class="field-info"><div class="field-label">配置项名称</div><div class="field-desc">如 mast_height / attachment_type</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">attribute_value</span><div class="field-info"><div class="field-label">配置值</div><div class="field-desc">如 "4.0m" / "side_shift" / "80"</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">effective_from</span><div class="field-info"><div class="field-label">生效开始时间</div><span class="field-type type-date">时间</span></div></div>
+        <div class="field"><span class="field-name">effective_to</span><div class="field-info"><div class="field-label">生效结束时间</div><div class="field-desc">空=当前有效；有值=历史配置</div><span class="field-type type-date">时间</span></div></div>
+        <div class="field"><span class="field-name">change_reason</span><div class="field-info"><div class="field-label">变更原因</div><div class="field-desc">如"客户要求更换属具"</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">equipment_status_events</div>
+      <div class="table-label">设备状态变更流水</div>
+      <div class="table-desc">每次设备状态变化，追加一条记录，永不删除。这是设备的"人生日记"。通过这张表，可以还原任何一台车在任何时间点的状态，以及是谁、因为什么改变了它。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">哪台设备</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">from_status</span><div class="field-info"><div class="field-label">变更前的状态</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">to_status</span><div class="field-info"><div class="field-label">变更后的状态</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">from_location</span><div class="field-info"><div class="field-label">变更前的位置</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">to_location</span><div class="field-info"><div class="field-label">变更后的位置</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name fk">triggered_by</span><div class="field-info"><div class="field-label">谁触发的</div><div class="field-desc">→ 指向 users 表</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">trigger_type</span><div class="field-info"><div class="field-label">触发原因类型</div><div class="field-desc">销售订单 / 租赁合同 / 质检 / 手动操作</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">parts</div>
+      <div class="table-label">零配件（单件追踪）</div>
+      <div class="table-desc">每个零配件独立一条记录，追踪到单件。包括属具、电池、轮胎、滤芯等。知道每个零件从哪来、现在在哪、装在哪台车上、花了多少钱。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">零件唯一编号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">part_ref</span><div class="field-info"><div class="field-label">DJJ零件流水号</div><div class="field-desc">格式 PART-26-0001</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">part_type</span><div class="field-info"><div class="field-label">零件类型</div><div class="field-desc">属具 / 电池 / 充电器 / 轮胎 / 滤芯 / 叉臂 / 其他</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">compatible_models</span><div class="field-info"><div class="field-label">适配机型</div><div class="field-desc">这个零件可以用在哪些型号上</div><span class="field-type type-json">数组</span></div></div>
+        <div class="field"><span class="field-name">current_status</span><div class="field-info"><div class="field-label">当前状态</div><div class="field-desc">在库 / 已预留 / 已安装 / 已使用 / 已退回 / 已报废</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">已安装到哪台设备</div><div class="field-desc">空=未安装，有值=已装机</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">unit_cost</span><div class="field-info"><div class="field-label">单价（不含GST）</div><span class="field-type type-num">金额</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">part_events</div>
+      <div class="table-label">零件动态记录</div>
+      <div class="table-desc">每次零件状态变化记录一条：入库、安装、拆除、消耗、退回。让每个零件的去向有完整追踪。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">part_id</span><div class="field-info"><div class="field-label">哪个零件</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">event_type</span><div class="field-info"><div class="field-label">事件类型</div><div class="field-desc">入库 / 安装 / 拆除 / 消耗 / 退回 / 报废</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">from_status / to_status</span><div class="field-info"><div class="field-label">状态变化</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">关联设备</div><div class="field-desc">装到哪台车上或从哪台车上拆下来</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">service_record_id</span><div class="field-info"><div class="field-label">关联维修工单</div><div class="field-desc">这个零件动作发生在哪次维修中</div><span class="field-type type-uuid">UUID</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOMAIN 3: PARTY -->
+<div class="domain domain-party">
+  <div class="domain-header">
+    <div class="domain-icon">👥</div>
+    <div class="domain-info">
+      <div class="domain-name">主体域 · Party</div>
+      <div class="domain-desc">有真实交易记录的客户——潜在客户保留在HubSpot，成交后数据进入这里</div>
+    </div>
+    <div class="domain-count">1 张表</div>
+  </div>
+  <div class="tables-grid">
+
+    <div class="table-card">
+      <div class="table-name">customers</div>
+      <div class="table-label">客户档案</div>
+      <div class="table-desc">只记录已经有真实购买或租赁记录的客户。潜在客户（还在谈的）保留在HubSpot，通过hubspot_id字段预留未来对接接口。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">客户唯一编号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">customer_code</span><div class="field-info"><div class="field-label">客户编号</div><div class="field-desc">DJJ内部编码</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">name</span><div class="field-info"><div class="field-label">客户名称</div><div class="field-desc">公司全名或个人姓名</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">abn</span><div class="field-info"><div class="field-label">澳洲商业税号</div><div class="field-desc">企业客户必填，是客户的唯一标识</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">primary_contact_name</span><div class="field-info"><div class="field-label">主要联系人</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">credit_limit</span><div class="field-info"><div class="field-label">信用额度</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">credit_status</span><div class="field-info"><div class="field-label">信用状态</div><div class="field-desc">良好 / 观察 / 暂停 / 黑名单</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">hubspot_id</span><div class="field-info"><div class="field-label">HubSpot对接ID</div><div class="field-desc">预留，未来与HubSpot同步时使用</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">assigned_sales_rep_id</span><div class="field-info"><div class="field-label">负责销售</div><div class="field-desc">→ 指向 users 表</div><span class="field-type type-uuid">UUID</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOMAIN 4: TRANSACTION -->
+<div class="domain domain-transaction">
+  <div class="domain-header">
+    <div class="domain-icon">📋</div>
+    <div class="domain-info">
+      <div class="domain-name">交易域 · Transaction</div>
+      <div class="domain-desc">所有业务交易的核心记录——销售、租赁、采购、对账、跨店调拨</div>
+    </div>
+    <div class="domain-count">6 张表</div>
+  </div>
+  <div class="tables-grid">
+
+    <div class="table-card">
+      <div class="table-name">sales_orders</div>
+      <div class="table-label">销售订单</div>
+      <div class="table-desc">每一笔销售一条记录。支持六种锁单类型（订金锁定、型号锁定、VIN锁定、主管特批、工厂订制、试用转购）。付款里程碑（订金到账、全款到账）由财务填写，填写后自动触发后续流程。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">销售单唯一编号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">order_ref</span><div class="field-info"><div class="field-label">销售单号</div><div class="field-desc">格式 INV-26-001-SYD</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">customer_id</span><div class="field-info"><div class="field-label">购买客户</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">对应设备</div><div class="field-desc">VIN确认前可为空</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">lock_type</span><div class="field-info"><div class="field-label">锁单类型</div><div class="field-desc">六种类型，决定不同的业务流程</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">sale_price</span><div class="field-info"><div class="field-label">成交价（不含GST）</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">deposit_received_at</span><div class="field-info"><div class="field-label">订金到账日期</div><div class="field-desc">财务确认填写，触发锁单流程</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">full_payment_received_at</span><div class="field-info"><div class="field-label">全款到账日期</div><div class="field-desc">财务确认填写，触发PO和PDI流程</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">po_status</span><div class="field-info"><div class="field-label">采购单状态</div><div class="field-desc">未就绪 / 待审核 / 已审批 / 已下单 / 暂缓</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">pdi_status</span><div class="field-info"><div class="field-label">PDI发车前检验状态</div><div class="field-desc">未开始 / 进行中 / 通过 / 未通过</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">delivery_date</span><div class="field-info"><div class="field-label">交货日期</div><div class="field-desc">填写后设备状态自动变为"已归档"</div><span class="field-type type-date">日期</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">hire_contracts</div>
+      <div class="table-label">租赁合同</div>
+      <div class="table-desc">每一份租赁合同一条记录。租赁必须绑定具体车辆（VIN必填）。支持续租（关联原合同）、租转买（自动创建销售订单）。到期前系统自动触发跟进。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name pk">id</span><div class="field-info"><div class="field-label">合同唯一编号</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">contract_ref</span><div class="field-info"><div class="field-label">合同号</div><div class="field-desc">格式 HIRE-26-001-SYD</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">租赁的设备</div><div class="field-desc">必须是具体VIN，不能空</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">rate_unit / rate_amount</span><div class="field-info"><div class="field-label">租金单位和金额</div><div class="field-desc">澳洲以周租金为主，系统统一换算为月</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">start_date / end_date</span><div class="field-info"><div class="field-label">租期开始 / 结束日期</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name fk">parent_contract_id</span><div class="field-info"><div class="field-label">原合同（续租时填）</div><div class="field-desc">→ 指向本表，形成续租链</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">return_condition</span><div class="field-info"><div class="field-label">回流状况</div><div class="field-desc">良好 / 轻微磨损 / 需维修 / 严重损坏</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">buyout_date / buyout_price</span><div class="field-info"><div class="field-label">买断日期和价格</div><div class="field-desc">填写后自动创建销售订单</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">status</span><div class="field-info"><div class="field-label">合同状态</div><div class="field-desc">生效中 / 即将到期 / 逾期处理 / 已回流 / 租转买 / 已终止</div><span class="field-type type-enum">选项</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">purchase_orders</div>
+      <div class="table-label">采购订单（DJJ发给供应商）</div>
+      <div class="table-desc">DJJ向中国供应商下的采购单。分三种类型：寄售结算（车卖掉了才下PO）、直接采购、工厂订制。采购负责人可以设定延迟发送时间，统一管理账期节奏。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">po_ref</span><div class="field-info"><div class="field-label">PO编号</div><div class="field-desc">格式 PO-26-001-SYD</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">supplier_id</span><div class="field-info"><div class="field-label">供应商</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">对应设备</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">sales_order_id</span><div class="field-info"><div class="field-label">触发此PO的销售单</div><div class="field-desc">寄售补单时为空</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">po_type</span><div class="field-info"><div class="field-label">采购类型</div><div class="field-desc">寄售结算 / 直接采购 / 工厂订制</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">unit_price</span><div class="field-info"><div class="field-label">最终议价成本</div><div class="field-desc">不含GST，已确认的结算价</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">exchange_rate</span><div class="field-info"><div class="field-label">锁定汇率</div><div class="field-desc">下单时的汇率，用于准确核算成本</div><span class="field-type type-num">数字</span></div></div>
+        <div class="field"><span class="field-name">scheduled_send_at</span><div class="field-info"><div class="field-label">计划发送时间</div><div class="field-desc">采购可以设定延迟发送，管理账期节奏</div><span class="field-type type-date">时间</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">supplier_invoices</div>
+      <div class="table-label">供应商发票（应付账款来源）</div>
+      <div class="table-desc">供应商开给DJJ的Invoice，每台设备对应一条记录。采购部逐条核对，发现差异标记为"争议"并记录说明，最终确认金额后提请付款。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">invoice_ref</span><div class="field-info"><div class="field-label">供应商Invoice编号</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">supplier_id</span><div class="field-info"><div class="field-label">哪个供应商</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">invoice_date / due_date</span><div class="field-info"><div class="field-label">开票日期 / 到期日</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">amount_excl_gst</span><div class="field-info"><div class="field-label">金额（不含GST）</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">status</span><div class="field-info"><div class="field-label">处理状态</div><div class="field-desc">已收到 / 已匹配 / 争议中 / 已审批 / 已付款</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">final_agreed_amount</span><div class="field-info"><div class="field-label">议价后最终金额</div><div class="field-desc">与供应商沟通后确认的实际结算金额</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">paid_at / paid_amount</span><div class="field-info"><div class="field-label">付款日期和金额</div><span class="field-type type-date">日期</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">supplier_statements</div>
+      <div class="table-label">供应商月结对账单</div>
+      <div class="table-desc">每月供应商发来的Statement（月结清单）。采购部拿着这张单逐条核对系统里的Invoice记录，确认无误后提请财务付款，发现差异记录说明。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">statement_ref</span><div class="field-info"><div class="field-label">Statement编号</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">supplier_id</span><div class="field-info"><div class="field-label">哪个供应商</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">statement_month</span><div class="field-info"><div class="field-label">账单月份</div><div class="field-desc">取月份第一天，如 2026-03-01 代表3月账单</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">total_amount_excl_gst</span><div class="field-info"><div class="field-label">账单总金额</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">rebate_amount</span><div class="field-info"><div class="field-label">本期返点金额</div><div class="field-desc">按季度采购额计算的返点</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">reconciliation_status</span><div class="field-info"><div class="field-label">对账状态</div><div class="field-desc">待处理 / 审核中 / 争议 / 已确认</div><span class="field-type type-enum">选项</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">internal_transfers</div>
+      <div class="table-label">跨店内部调拨</div>
+      <div class="table-desc">悉尼、Perth、Brisbane三店之间的设备调配。每次调拨会产生真实的内部应收/应付账款，总部还会收取管理费。所有权性质（DJJ自有 vs 寄售）决定财务处理方式。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">transfer_ref</span><div class="field-info"><div class="field-label">调拨单号</div><div class="field-desc">格式 TRF-26-001</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">调拨的设备</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">from_entity_id / to_entity_id</span><div class="field-info"><div class="field-label">调出方 / 调入方</div><div class="field-desc">→ 指向 legal_entities 表</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">ownership_type</span><div class="field-info"><div class="field-label">所有权类型</div><div class="field-desc">djj_owned（DJJ自有）/ consignment（寄售）财务处理完全不同</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">transfer_price</span><div class="field-info"><div class="field-label">内部转让价</div><div class="field-desc">DJJ自有设备时，调出方向调入方收取</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">freight_cost / management_fee</span><div class="field-info"><div class="field-label">运费 / 总部管理费</div><div class="field-desc">运费由调入方承担，管理费按比例收取</div><span class="field-type type-num">金额</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOMAIN 5: OPERATIONS -->
+<div class="domain domain-operations">
+  <div class="domain-header">
+    <div class="domain-icon">🔧</div>
+    <div class="domain-info">
+      <div class="domain-name">运营域 · Operations</div>
+      <div class="domain-desc">入库质检、售后维修、租赁账单——所有操作动作都有记录</div>
+    </div>
+    <div class="domain-count">3 张表</div>
+  </div>
+  <div class="tables-grid">
+
+    <div class="table-card">
+      <div class="table-name">inbound_inspections</div>
+      <div class="table-label">入库质检记录</div>
+      <div class="table-desc">每台设备入库（或PDI、回流质检）时，仓库人员填写质检记录。核心动作：拍摄铭牌照片，核对车架号与系统是否一致，记录外观状况。质检结果决定设备后续状态。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">被检查的设备</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">inspection_type</span><div class="field-info"><div class="field-label">检查类型</div><div class="field-desc">入库 / PDI发车前 / 维修后 / 租赁回流</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">vin_on_dataplate</span><div class="field-info"><div class="field-label">铭牌上读取的车架号</div><div class="field-desc">用于与系统录入值核对，发现不一致立即标记</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">vin_match</span><div class="field-info"><div class="field-label">车架号是否匹配</div><span class="field-type type-bool">是/否</span></div></div>
+        <div class="field"><span class="field-name">result</span><div class="field-info"><div class="field-label">质检结论</div><div class="field-desc">通过 / 轻微问题 / 严重问题 / 退回供应商</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">data_plate_photo_url</span><div class="field-info"><div class="field-label">铭牌照片</div><span class="field-type type-text">图片地址</span></div></div>
+        <div class="field"><span class="field-name">damage_photo_urls</span><div class="field-info"><div class="field-label">破损照片（多张）</div><span class="field-type type-json">JSON</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">service_records</div>
+      <div class="table-label">售后维修工单</div>
+      <div class="table-desc">每次售后维修服务一条记录，包括保养、维修、质保处理。记录谁报的修、谁去做的、做了什么、用了哪些零件、收了多少钱。设备维修历史永久保留，是未来预测维护的数据基础。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">service_ref</span><div class="field-info"><div class="field-label">工单号</div><div class="field-desc">格式 SVC-26-001-SYD</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">equipment_id</span><div class="field-info"><div class="field-label">维修的设备</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">service_type</span><div class="field-info"><div class="field-label">服务类型</div><div class="field-desc">定期保养 / 故障维修 / 质保 / 检验 / 紧急</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">technician_type</span><div class="field-info"><div class="field-label">技师类型</div><div class="field-desc">DJJ内部技师 / 杭叉VIC团队 / 第三方外包</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">parts_used</span><div class="field-info"><div class="field-label">使用零件清单</div><div class="field-desc">JSON格式，记录每个零件名称、数量、单价</div><span class="field-type type-json">JSON</span></div></div>
+        <div class="field"><span class="field-name">labour_cost / parts_cost</span><div class="field-info"><div class="field-label">人工费 / 零件费</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">charged_to</span><div class="field-info"><div class="field-label">费用由谁承担</div><div class="field-desc">客户 / 质保范围 / DJJ自己承担 / 向供应商索赔</div><span class="field-type type-enum">选项</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">hire_invoices</div>
+      <div class="table-label">租赁账单</div>
+      <div class="table-desc">每个计费周期给租赁客户开一张账单。系统根据合同自动计算金额，按设定的频率（周/月/季）生成。与Xero对接做税务处理。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">invoice_ref</span><div class="field-info"><div class="field-label">账单号</div><div class="field-desc">格式 HINV-26-001-SYD</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">hire_contract_id</span><div class="field-info"><div class="field-label">对应租赁合同</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">billing_period_start/end</span><div class="field-info"><div class="field-label">计费周期</div><div class="field-desc">本张账单覆盖的日期范围</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">amount_excl_gst / gst_amount</span><div class="field-info"><div class="field-label">租金 / GST</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">due_date</span><div class="field-info"><div class="field-label">应付日期</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">status</span><div class="field-info"><div class="field-label">账单状态</div><div class="field-desc">草稿 / 已发送 / 已付款 / 逾期 / 争议 / 已取消</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">xero_invoice_id</span><div class="field-info"><div class="field-label">Xero发票ID</div><div class="field-desc">与Xero同步后自动填入</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOMAIN 6: FINANCE -->
+<div class="domain domain-finance">
+  <div class="domain-header">
+    <div class="domain-icon">💰</div>
+    <div class="domain-info">
+      <div class="domain-name">财务域 · Finance</div>
+      <div class="domain-desc">每一笔钱的流动——应收、应付、实际收付款、汇率记录</div>
+    </div>
+    <div class="domain-count">4 张表</div>
+  </div>
+  <div class="tables-grid">
+
+    <div class="table-card">
+      <div class="table-name">ar_ledger</div>
+      <div class="table-label">应收账款分类账</div>
+      <div class="table-desc">记录所有客户欠DJJ的钱。每一笔应收独立一条记录，来源可能是销售订单、租赁账单或售后服务费。账龄分析（欠了多少天）由智能层实时计算，不存库。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">customer_id</span><div class="field-info"><div class="field-label">欠款客户</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">sales_order_id</span><div class="field-info"><div class="field-label">来源：销售订单</div><div class="field-desc">三个来源字段之一</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">hire_invoice_id</span><div class="field-info"><div class="field-label">来源：租赁账单</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">service_record_id</span><div class="field-info"><div class="field-label">来源：售后服务</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">amount_incl_gst</span><div class="field-info"><div class="field-label">应收金额（含GST）</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">due_date</span><div class="field-info"><div class="field-label">应付日期</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">status</span><div class="field-info"><div class="field-label">状态</div><div class="field-desc">未收 / 部分收 / 已收 / 逾期 / 争议 / 坏账核销</div><span class="field-type type-enum">选项</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">ap_ledger</div>
+      <div class="table-label">应付账款分类账</div>
+      <div class="table-desc">记录DJJ欠别人的钱，包括欠供应商的（采购货款）和欠分店的（跨店内部账款）。账期到期前系统自动预警。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">supplier_id</span><div class="field-info"><div class="field-label">欠款供应商</div><div class="field-desc">供应商应付时填写</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">counterparty_entity_id</span><div class="field-info"><div class="field-label">欠款分店</div><div class="field-desc">跨店内部账款时填写</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name fk">supplier_invoice_id</span><div class="field-info"><div class="field-label">来源：供应商Invoice</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">amount_incl_gst</span><div class="field-info"><div class="field-label">应付金额（含GST）</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">due_date</span><div class="field-info"><div class="field-label">到期日</div><div class="field-desc">到期前30天系统自动预警</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">status</span><div class="field-info"><div class="field-label">状态</div><div class="field-desc">未付 / 部分付 / 已付 / 逾期 / 暂缓 / 争议</div><span class="field-type type-enum">选项</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">payment_records</div>
+      <div class="table-label">付款记录（每笔资金流动）⭐</div>
+      <div class="table-desc">记录每一笔实际发生的资金流动，无论方向。客户付款进来是一条，DJJ付给供应商是一条。银行流水号保证每笔都可追溯。这里的数据是实时现金流报告的直接来源。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">direction</span><div class="field-info"><div class="field-label">资金方向</div><div class="field-desc">inbound（收款）/ outbound（付款）</div><span class="field-type type-enum">选项</span></div></div>
+        <div class="field"><span class="field-name">payment_date</span><div class="field-info"><div class="field-label">付款日期</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">amount</span><div class="field-info"><div class="field-label">金额</div><span class="field-type type-num">金额</span></div></div>
+        <div class="field"><span class="field-name">payment_method</span><div class="field-info"><div class="field-label">付款方式</div><div class="field-desc">银行转账 / 信用卡 / 银行贷款 / 其他</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">bank_ref</span><div class="field-info"><div class="field-label">银行流水号</div><div class="field-desc">用于与银行对账</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">ar_ledger_id / ap_ledger_id</span><div class="field-info"><div class="field-label">关联的应收/应付</div><div class="field-desc">这笔钱是在冲哪一条账</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">xero_payment_id</span><div class="field-info"><div class="field-label">Xero付款ID</div><div class="field-desc">与Xero同步用于GST申报</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-name">exchange_rates</div>
+      <div class="table-label">汇率记录</div>
+      <div class="table-desc">每一笔涉及外币的交易，都要锁定当时的汇率。不能事后用当天汇率推算，否则利润核算不准确。记录汇率来源（哪家银行/平台），供财务审计。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name">rate_date</span><div class="field-info"><div class="field-label">汇率日期</div><span class="field-type type-date">日期</span></div></div>
+        <div class="field"><span class="field-name">from_currency / to_currency</span><div class="field-info"><div class="field-label">货币对</div><div class="field-desc">如 CNY → AUD</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">rate</span><div class="field-info"><div class="field-label">汇率</div><div class="field-desc">6位小数，确保精度</div><span class="field-type type-num">数字</span></div></div>
+        <div class="field"><span class="field-name">rate_source</span><div class="field-info"><div class="field-label">汇率来源</div><div class="field-desc">如 ANZ Bank / RBA / xe.com</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name fk">transaction_ref</span><div class="field-info"><div class="field-label">关联交易</div><div class="field-desc">这个汇率对应哪笔具体的付款</div><span class="field-type type-uuid">UUID</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOMAIN 7: AUDIT -->
+<div class="domain domain-audit">
+  <div class="domain-header">
+    <div class="domain-icon">📝</div>
+    <div class="domain-info">
+      <div class="domain-name">审计域 · Audit</div>
+      <div class="domain-desc">不可篡改的操作日志——谁、什么时候、改了什么，永久保留</div>
+    </div>
+    <div class="domain-count">1 张表</div>
+  </div>
+  <div class="tables-grid">
+
+    <div class="table-card">
+      <div class="table-name">action_logs</div>
+      <div class="table-label">操作日志（不可篡改）</div>
+      <div class="table-desc">每次任何人对任何数据做的修改，都追加一条记录，永远不删除。这是系统的"监控摄像头"。出了问题可以精确追溯：谁在几点几分改了哪个字段，改之前是什么值，改之后是什么值。</div>
+      <div class="fields">
+        <div class="field"><span class="field-name fk">user_id</span><div class="field-info"><div class="field-label">操作人</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">action_type</span><div class="field-info"><div class="field-label">操作类型</div><div class="field-desc">创建 / 修改 / 状态变更 / 审批 / 软删除</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">entity_type</span><div class="field-info"><div class="field-label">操作的是哪类数据</div><div class="field-desc">如 equipment / sales_order / hire_contract</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">entity_id</span><div class="field-info"><div class="field-label">操作的具体记录</div><span class="field-type type-uuid">UUID</span></div></div>
+        <div class="field"><span class="field-name">field_name</span><div class="field-info"><div class="field-label">修改的字段名</div><div class="field-desc">如 current_status / sale_price</div><span class="field-type type-text">文字</span></div></div>
+        <div class="field"><span class="field-name">old_value / new_value</span><div class="field-info"><div class="field-label">修改前 / 修改后的值</div><span class="field-type type-text">文字</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<!-- VIEWS SECTION -->
+<div class="views-section">
+  <div class="section-number" style="font-size:11px;font-weight:700;letter-spacing:2px;color:#2d6a4f;text-transform:uppercase;margin-bottom:8px">智能视图 · Smart Views</div>
+  <div class="enum-title">5个预建视图（智能层的数据接口）</div>
+  <div class="enum-sub">视图是从原始数据表里实时计算出来的"汇总视角"。智能层（AI）读取这些视图，不直接读底层表。视图里的所有计算值都是实时的，永远最新。</div>
+  <div class="views-grid">
+    <div class="view-card">
+      <div class="view-name">v_equipment_current</div>
+      <div class="view-label">当前在库设备视图</div>
+      <div class="view-desc">把设备主表、机型表、供应商表、法人实体表的信息合并，展示每台活跃设备的完整快照。排除已归档、已退回、已报废的设备。</div>
+      <div class="view-use">用途：库存看板 · 销售查车</div>
+    </div>
+    <div class="view-card">
+      <div class="view-name">v_ar_aging</div>
+      <div class="view-label">应收账款账龄分析</div>
+      <div class="view-desc">实时计算每笔应收账款逾期多少天，自动归入账龄桶（当期 / 1-30天 / 31-60天 / 61-90天 / 90天以上）。账龄天数不存库，实时算。</div>
+      <div class="view-use">用途：财务催款 · 坏账预警</div>
+    </div>
+    <div class="view-card">
+      <div class="view-name">v_hire_expiring</div>
+      <div class="view-label">60天内到期租赁合同</div>
+      <div class="view-desc">筛选出60天内即将到期的所有租赁合同，附带客户联系方式和负责销售信息，让系统可以自动触发续租跟进。</div>
+      <div class="view-use">用途：续租自动跟进 · 设备回收安排</div>
+    </div>
+    <div class="view-card">
+      <div class="view-name">v_ap_due_soon</div>
+      <div class="view-label">30天内到期应付账款</div>
+      <div class="view-desc">筛选出30天内需要支付的供应商账款，包括金额、到期日、供应商信息，让财务提前安排付款，避免逾期影响供应商关系。</div>
+      <div class="view-use">用途：账期管理 · 供应商关系维护</div>
+    </div>
+    <div class="view-card">
+      <div class="view-name">v_po_pending</div>
+      <div class="view-label">PO待办池</div>
+      <div class="view-desc">展示所有全款已到账、等待采购负责人下PO的销售订单。包括等待天数，让采购知道哪些已经等太久了，需要优先处理。</div>
+      <div class="view-use">用途：采购待办 · 流程提速</div>
+    </div>
+  </div>
+</div>
+
+<!-- ENUM SECTION -->
+<div class="enum-section">
+  <div class="section-number" style="font-size:11px;font-weight:700;letter-spacing:2px;color:#2d6a4f;text-transform:uppercase;margin-bottom:8px">状态枚举 · Status Enums</div>
+  <div class="enum-title">关键状态选项说明</div>
+  <div class="enum-sub">系统里所有"状态"字段的选项都是固定的枚举值，不能随意填写。这样保证数据标准统一，也让系统可以根据状态自动触发对应的流程。</div>
+  <div class="enum-grid">
+
+    <div class="enum-card">
+      <div class="enum-name">equipment_status（19种）</div>
+      <div class="enum-label">设备生命周期状态</div>
+      <div class="enum-values">
+        <div class="enum-value"><span class="enum-code">in_transit</span><span class="enum-meaning">在途（已发货，未到仓）</span></div>
+        <div class="enum-value"><span class="enum-code">arrived_pending_check</span><span class="enum-meaning">已到货，等待质检</span></div>
+        <div class="enum-value"><span class="enum-code">available</span><span class="enum-meaning">可售 / 可租</span></div>
+        <div class="enum-value"><span class="enum-code">deposit_hold</span><span class="enum-meaning">订金锁定</span></div>
+        <div class="enum-value"><span class="enum-code">vin_hold</span><span class="enum-meaning">VIN锁定（具体车已确认）</span></div>
+        <div class="enum-value"><span class="enum-code">manager_approved_hold</span><span class="enum-meaning">主管特批锁定（无订金）</span></div>
+        <div class="enum-value"><span class="enum-code">pdi_in_progress</span><span class="enum-meaning">PDI发车前检验进行中</span></div>
+        <div class="enum-value"><span class="enum-code">on_hire</span><span class="enum-meaning">租赁中</span></div>
+        <div class="enum-value"><span class="enum-code">overdue_not_returned</span><span class="enum-meaning">租赁逾期，设备未回</span></div>
+        <div class="enum-value"><span class="enum-code">hire_to_buy_in_progress</span><span class="enum-meaning">租转买进行中</span></div>
+        <div class="enum-value"><span class="enum-code">in_repair</span><span class="enum-meaning">维修中</span></div>
+        <div class="enum-value"><span class="enum-code">archived</span><span class="enum-meaning">已售出归档（终态）</span></div>
+        <div class="enum-value"><span class="enum-code">returned_to_supplier</span><span class="enum-meaning">已退回供应商（终态）</span></div>
+      </div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-name">data_source</div>
+      <div class="enum-label">数据来源</div>
+      <div class="enum-values">
+        <div class="enum-value"><span class="enum-code">supplier_document</span><span class="enum-meaning">供应商书面文件（发货单/Invoice）</span></div>
+        <div class="enum-value"><span class="enum-code">warehouse_verified</span><span class="enum-meaning">仓库实物核验后录入</span></div>
+        <div class="enum-value"><span class="enum-code">manual_entry</span><span class="enum-meaning">人工录入，有书面依据</span></div>
+        <div class="enum-value"><span class="enum-code">manual_unverified</span><span class="enum-meaning">人工录入，无书面依据（口头）</span></div>
+        <div class="enum-value"><span class="enum-code">system_generated</span><span class="enum-meaning">系统自动生成</span></div>
+        <div class="enum-value"><span class="enum-code">api_import</span><span class="enum-meaning">从外部系统API导入</span></div>
+        <div class="enum-value"><span class="enum-code">iot_sensor</span><span class="enum-meaning">IoT传感器（未来使用）</span></div>
+      </div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-name">confidence_level</div>
+      <div class="enum-label">数据可信度</div>
+      <div class="enum-values">
+        <div class="enum-value"><span class="enum-code">verified</span><span class="enum-meaning">已实物核验（最高可信）</span></div>
+        <div class="enum-value"><span class="enum-code">documented</span><span class="enum-meaning">有书面来源，未实物核验</span></div>
+        <div class="enum-value"><span class="enum-code">manual</span><span class="enum-meaning">人工录入，无书面来源</span></div>
+        <div class="enum-value"><span class="enum-code">inferred</span><span class="enum-meaning">系统从其他记录自动推断</span></div>
+      </div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-name">equipment_source_type</div>
+      <div class="enum-label">设备采购方式</div>
+      <div class="enum-values">
+        <div class="enum-value"><span class="enum-code">consignment</span><span class="enum-meaning">寄售：所有权在厂家，卖了才付款</span></div>
+        <div class="enum-value"><span class="enum-code">purchase</span><span class="enum-meaning">自采：所有权在DJJ，采购时付款</span></div>
+        <div class="enum-value"><span class="enum-code">factory_order</span><span class="enum-meaning">工厂订制：客户定制，周期较长</span></div>
+        <div class="enum-value"><span class="enum-code">trade_in</span><span class="enum-meaning">以旧换新：客户旧车换新车</span></div>
+        <div class="enum-value"><span class="enum-code">consignment_sale</span><span class="enum-meaning">客户寄卖：代客户销售设备</span></div>
+        <div class="enum-value"><span class="enum-code">demo</span><span class="enum-meaning">试用机：供客户试驾用</span></div>
+      </div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-name">data_access_level</div>
+      <div class="enum-label">员工数据权限级别</div>
+      <div class="enum-values">
+        <div class="enum-value"><span class="enum-code">operational</span><span class="enum-meaning">日常操作：看不到成本价和利润率</span></div>
+        <div class="enum-value"><span class="enum-code">commercial</span><span class="enum-meaning">商务级：可以看售价，看不到成本</span></div>
+        <div class="enum-value"><span class="enum-code">financial</span><span class="enum-meaning">财务级：可以看全部财务数据</span></div>
+        <div class="enum-value"><span class="enum-code">admin</span><span class="enum-meaning">系统管理员：全部权限</span></div>
+      </div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-name">hire_contract status</div>
+      <div class="enum-label">租赁合同状态</div>
+      <div class="enum-values">
+        <div class="enum-value"><span class="enum-code">active</span><span class="enum-meaning">生效中</span></div>
+        <div class="enum-value"><span class="enum-code">expiring_soon</span><span class="enum-meaning">即将到期（系统自动标记）</span></div>
+        <div class="enum-value"><span class="enum-code">overdue_processing</span><span class="enum-meaning">逾期处理中</span></div>
+        <div class="enum-value"><span class="enum-code">returned_pending_inspection</span><span class="enum-meaning">已回流，待质检</span></div>
+        <div class="enum-value"><span class="enum-code">available_rehire</span><span class="enum-meaning">可重新出租</span></div>
+        <div class="enum-value"><span class="enum-code">hire_to_buy</span><span class="enum-meaning">租转买进行中</span></div>
+        <div class="enum-value"><span class="enum-code">terminated</span><span class="enum-meaning">已终止</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="padding: 32px 48px; background: var(--green); color: rgba(255,255,255,0.7); font-size: 12px; text-align: center; margin-top: 40px;">
+  DJJ Equipment · 数据库结构说明文档 v1.0 · 2026年4月 · 内部文件
+</div>
+
+</body>
+</html>
